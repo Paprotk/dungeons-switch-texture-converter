@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Texture Displacer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-panel: #1e1e1e;
+            --border: #333333;
+            --text-main: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --primary: #3a6ea5;
+            --primary-hover: #4a7eb5;
+            --button: #444444;
+            --button-hover: #555555;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Ubuntu', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: url('https://raw.githubusercontent.com/DokucraftSaga/Custom-Skins-Loader/refs/heads/main/web-src/assets/block_bg.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* Main Container */
+        .app {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            padding: 30px;
+            background-color: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 15%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        /* Content */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Preview Section */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .preview-box {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #2a2a2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-box:hover {
+            border-color:#666666;
+            transform: translateY(-2px);
+        }
+
+        .preview-canvas {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .preview-box:hover .upload-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .preview-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-input-label {
+            display: none; /* Hidden now */
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .status {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            min-height: 20px;
+            line-height: 1.5;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .app {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/Paprotk/hub/main/arro_profile.png" 
+                 alt="Profile" 
+                 class="avatar" 
+                 onclick="window.open('https://arro-now.tumblr.com/')">
+            <h1 class="title">Dungeons Switch Texture Displacer</h1>
+        </div>
+
+        <div class="content">
+            <div class="preview-container">
+                <div class="preview-label">Click to Upload Texture</div>
+                <div class="preview-box" id="previewBox">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <canvas id="textureCanvas" class="preview-canvas" width="64" height="64"></canvas>
+                    <canvas id="resultCanvas" class="preview-canvas" width="64" height="64"></canvas>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <input type="file" id="textureInput" class="file-input" accept="image/*">
+                
+                <div class="status" id="status">Ready to convert textures</div>
+                <div class="info-text">
+                    For Minecraft skins, convert to Minecraft Dungeons format first at:<br>
+                    <a href="https://dokucraft.co.uk/custom-skins-loader/" 
+                       style="color: var(--primary); text-decoration: none;" 
+                       target="_blank">
+                       dokucraft.co.uk/custom-skins-loader/
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const textureInput = document.getElementById('textureInput');
+        const statusElement = document.getElementById('status');
+        const previewBox = document.getElementById('previewBox');
+        const uploadIcon = previewBox.querySelector('.upload-icon');
+        
+        // Canvas elements
+        const textureCanvas = document.getElementById('textureCanvas');
+        const dispMapCanvas = document.createElement('canvas');
+        const resultCanvas = document.getElementById('resultCanvas');
+        
+        // Contexts
+        const textureCtx = textureCanvas.getContext('2d');
+        const dispMapCtx = dispMapCanvas.getContext('2d');
+        const resultCtx = resultCanvas.getContext('2d');
+        
+        // Make the preview box clickable to trigger file input
+        previewBox.addEventListener('click', function() {
+            textureInput.click();
+        });
+
+        // Load the Switch displacement map automatically
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSwitchDisplacementMap();
+        });
+
+        function loadSwitchDisplacementMap() {
+            statusElement.textContent = "Loading Switch displacement map...";
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function() {
+                dispMapCanvas.width = img.width;
+                dispMapCanvas.height = img.height;
+                dispMapCtx.drawImage(img, 0, 0);
+                statusElement.textContent = "Ready to convert textures";
+            };
+            img.onerror = function() {
+                statusElement.textContent = "Error loading displacement map";
+                alert('Failed to load the Switch displacement map. Please try again later.');
+            };
+            img.src = 'https://raw.githubusercontent.com/Paprotk/dungeons-switch-texture-converter/main/switch_map.png';
+        }
+        
+        // File input event listener - handles the entire process
+        textureInput.addEventListener('change', function(e) {
+            if (!e.target.files[0]) return;
+            
+            statusElement.textContent = "Processing texture...";
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Hide upload icon and show canvas
+                    uploadIcon.style.display = 'none';
+                    textureCanvas.style.display = 'block';
+                    
+                    // Draw the original texture
+                    textureCanvas.width = img.width;
+                    textureCanvas.height = img.height;
+                    textureCtx.drawImage(img, 0, 0);
+                    
+                    // Process the image
+                    processAndDownload();
+                };
+                img.onerror = function() {
+                    statusElement.textContent = "Error loading image";
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = function() {
+                statusElement.textContent = "Error reading file";
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        
+        function processAndDownload() {
+            // Check if displacement map is loaded
+            if (dispMapCanvas.width === 0 || dispMapCanvas.height === 0) {
+                statusElement.textContent = "Error: Displacement map not loaded";
+                return;
+            }
+            
+            const size = textureCanvas.width;
+            resultCanvas.width = size;
+            resultCanvas.height = size;
+            
+            // Get image data
+            const textureData = textureCtx.getImageData(0, 0, size, size).data;
+            const dispMapData = dispMapCtx.getImageData(0, 0, size, size).data;
+            
+            // Create new image data for result
+            const resultImageData = resultCtx.createImageData(size, size);
+            
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const dispMapIndex = (y * size + x) * 4;
+                    const a = dispMapData[dispMapIndex + 3]; // Alpha channel
+                    
+                    if (a > 0) {
+                        // Get coordinates from displacement map (RG channels)
+                        const dx = dispMapData[dispMapIndex];
+                        const dy = dispMapData[dispMapIndex + 1];
+                        
+                        // Get color from texture at displaced position
+                        const textureIndex = (dy * size + dx) * 4;
+                        
+                        // Set pixel in result
+                        const resultIndex = (y * size + x) * 4;
+                        resultImageData.data[resultIndex] = textureData[textureIndex];         // R
+                        resultImageData.data[resultIndex + 1] = textureData[textureIndex + 1]; // G
+                        resultImageData.data[resultIndex + 2] = textureData[textureIndex + 2]; // B
+                        resultImageData.data[resultIndex + 3] = textureData[textureIndex + 3]; // A
+                    } else {
+                        // Transparent pixel if displacement map alpha is 0
+                        const resultIndex = (y * size + x) * 4;
+                        resultImageData.data[resultIndex] = 0;      // R
+                        resultImageData.data[resultIndex + 1] = 0;  // G
+                        resultImageData.data[resultIndex + 2] = 0;  // B
+                        resultImageData.data[resultIndex + 3] = 0;  // A
+                    }
+                }
+            }
+            
+            // Put the result on canvas
+            resultCtx.putImageData(resultImageData, 0, 0);
+            
+            // Hide texture canvas and show result canvas
+            textureCanvas.style.display = 'none';
+            resultCanvas.style.display = 'block';
+            
+            // Automatically download the result
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = 'texture_for_switch.png';
+                link.href = resultCanvas.toDataURL('image/png');
+                link.click();
+                
+                // Reset after download
+                setTimeout(() => {
+                    resultCanvas.style.display = 'none';
+                    uploadIcon.style.display = 'block';
+                    statusElement.textContent = "Conversion complete! Ready for another texture.";
+                }, 1000);
+                
+            }, 500);
+        }
+    </script>
+</body>
+</html>
